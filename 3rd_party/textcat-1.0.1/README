@@ -1,0 +1,123 @@
+Contents
+---------------------------------------------------------
+
+   1. Basic usage of org.knallgrau.utils.textcat library
+   2. How to create your own FingerPrint files
+   3. Using your own Fingerprints to categorize text
+   
+
+1. Basic usage of org.knallgrau.utils.textcat library
+---------------------------------------------------------
+
+* first of all: add this jar to your application's classpath
+
+Example Code:
+
+   import org.knallgrau.utils.textcat.TextCategorizer;
+
+   public class SimpleCategorizer {
+      public static void main(String[] args) {
+         String category = "please enter a command line argument.;
+         TextCategorizer guesser = new TextCategorizer();
+         if(args.length > 0) {
+            category = guesser.categorize(args[0]);
+         }
+         System.out.println(category);
+      }
+   }
+
+explanation:
+
+this code shall demonstrate how to use the TextCategorizer class.it takes the
+first command line argument and passes it to the categorize method of the
+instantiated LanguageGuesser which then returns the recognized language as a
+string object.
+
+
+2. How to create your own FingerPrint files
+---------------------------------------------------------
+
+creating your own fingerprints can be useful for categorizing text into topics.
+using the appropiate training data you could for example create fingerprints of
+english texts about politics, sports, it or whatever you can think of. your training
+data should be at least 20K in order to get useful fingerprints. you can either
+create your fingerprints programmatically or by executing the java archive with
+the "-createfp" option. let's take a look at the second option at first:
+
+   java -jar textcat.jar -createfp politics.txt
+
+by executing this command textcat.jar would look for a file named "politics.txt"
+in its execution path and would use its content in order to create a new fingerprint
+file named "politics.lm" in the execution path. you could optionally append a category
+name to the command like that:
+
+   java -jar textcat.jar -createfp politics.txt pol
+
+in this case textcat.jar would create a fingerprint file named "pol.lm" instead of
+"politics.lm".
+
+let's see how to create fingerprints programmatically:
+
+   import org.knallgrau.utils.textcat.FingerPrint;
+
+   public class FingerPrintGenerator {
+      public static void main(String[] args) {
+         FingerPrint fp = new FingerPrint(args[0]);
+         try {
+            FileOutputStream fos = new FileOutputStream(args[1]);
+            fos.write(fp.toString().getBytes());
+            fos.close();
+         }
+         catch(Exception e) {
+         }
+      }
+   }
+
+explanation:
+
+this code takes the path to the textfile which is used for creating the fingerprint as
+first argument and the path to the file to store the fingerprint as the second argument.
+the essential part in this code is that the toString method of the FingerPrint returns
+the fingerprint already formatted as a valid fingerprint file.
+
+
+3. Using your own Fingerprints to categorize text
+---------------------------------------------------------
+
+once you've created your fingerprint files you need to create a config file which
+maps category names to the appropiate fingerprint files. supposed you've got three
+fingerprint files politics.lm, sports.lm and it.lm your config file (myconf.conf) might
+look something like this:
+
+   fingerprints/politics.lm		politics
+   fingerprints/sports.lm		sports
+   fingerprints/it.lm			information-technology
+
+the paths to the fingerprint files are relative to the execution path of your application.
+you can certainly declare absolute filepaths too.
+
+in order to make your TextCategorizer use your configuration file you've got to call
+the setConfFile method like in the following code:
+
+   import org.knallgrau.utils.textcat.LanguageGuesser;
+
+   public class SimpleCategorizer {
+      public static void main(String[] args) {
+         String category = "please enter a command line argument.;
+         TextCategorizer guesser = new TextCategorizer();
+         guesser.setConfFile("myconf.conf");
+         if(args.length > 0) {
+            category = guesser.categorize(args[0]);
+         }
+         System.out.println(category);
+      }
+   }
+
+explanation:
+
+this small program takes the first command line argument and categorizes it by
+using our configuration file above. so the output of this program will be either
+"politics", "sports" or "information-technology". if you want the LanguageGuesser
+to fall back to its intern language classfication you've got to call:
+
+   guesser.setConfFile(null);
