@@ -3,6 +3,7 @@
 Naive Bayes classification.
 
 By Bill Cauchois, for CSE 446.
+Tweaked by Henry Baba-Weiss, for STAT 391.
 """
 
 import os, math, sys, re
@@ -17,15 +18,11 @@ try:
 except ImportError:
     pass
 
-STANFORD_POSTAGGER = './stanford-postagger'
-
 PUNCTUATION = '.,;:\'\"?/\\()*&^%$#@![]{}|><-+_'
-
-ARTICLES = None
 
 NOTIFY = False
 
-DOC_RE = re.compile('^[0-9]+$')
+DOC_RE = re.compile('.+\.txt$')
 
 def normalize_token(token):
     """
@@ -56,37 +53,6 @@ def read_file(filename):
     with open(filename, 'r') as file:
         return file.read()
 
-def remove_headers(text):
-    'Remove the MIME headers on a newsgroup message.'
-    # the MIME headers are separated from the body of the message by a
-    # double newline, according to the RFC.
-    return '\n'.join(text.split('\n\n')[1:])
-
-def invoke_pos_tagger(filename, model=None):
-    import subprocess
-    model = model or os.path.join(STANFORD_POSTAGGER,
-                                  'models/left3words-wsj-0-18.tagger')
-    # store a version of the file without headers in a temp location
-    tmpnam = os.tmpnam()
-    with open(tmpnam, 'w') as file:
-        file.write(remove_headers(read_file(filename)))
-    handle = subprocess.Popen([
-      '/usr/bin/env', 'java',
-      '-mx300m', # increase the heap size
-      '-cp', # class path
-      '%s:' % os.path.join(STANFORD_POSTAGGER, 'stanford-postagger.jar'),
-      'edu.stanford.nlp.tagger.maxent.MaxentTagger', # entry point
-      '-model', model,
-      '-textFile', tmpnam],
-      stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-
-    result = handle.communicate()
-    if 'Exception' in result[1]:
-        raise RuntimeError, 'Stanford POS tagger had a failure'
-    os.unlink(tmpnam)
-    return result[0]
-
 class ZeroDict(dict):
     'Like a regular dict, but if a key is not present its assumed to be 0.'
     def __getitem__(self, key):
@@ -99,17 +65,10 @@ class ZeroDict(dict):
 class NaiveBayes:
     'Implements the Naive Bayes algorithm for text classification.'
 
-    ALL_MODS = ['pos-tagging',
-                'transform-freqs',
-                'remove-articles',
-                'clustering']
-
-    def __init__(self, mods=None):
+    def __init__(self):
         """
-        Initialize Naive Bayes. <mods> is an array of strings indicating
-        which modifications to apply to the algorithm.
+        Initialize Naive Bayes.
         """
-        self.mods = mods or []
         self.cache = {}
 
     def tokens_for_text(self, text):
@@ -117,11 +76,7 @@ class NaiveBayes:
         Return all normalized, valid tokens for a string of text.
         """
         all_tokens = map(normalize_token, text.split())
-        tokens = filter(is_valid_token, all_tokens)
-        if 'clustering' in self.mods:
-            return zip(tokens, tokens[1:])
-        else:
-            return tokens
+        return filter(is_valid_token, all_tokens)
 
     class Category:
         def __init__(self, label):
@@ -142,15 +97,7 @@ class NaiveBayes:
                 self.cache[filename] = read_file(filename)
 
     def get_text(self, filename):
-        if 'pos-tagging' in self.mods:
-            # use the tagged file instead of the original
-            if not os.path.exists('%s.tagged' % filename):
-                raise RuntimeError, 'Couldn\'t find tagged file'
-            text = read_file('%s.tagged' % filename)
-        else:
-            text = remove_headers( \
-                     self.cache.get(filename) or read_file(filename))
-        return text
+        return self.cache.get(filename) or read_file(filename)
 
     def learn(self, labels, examples):
         examples = list(examples)
@@ -170,23 +117,7 @@ class NaiveBayes:
                 category.num_words += 1
             category.num_docs += 1
 
-        if 'remove-articles' in self.mods:
-            # load the list of articles on demand
-            global ARTICLES
-            if ARTICLES is None:
-                ARTICLES = map(str.strip,
-                             read_file('articles.dat').splitlines())
-            for article in ARTICLES:
-                self.vocab.discard(article)
-
-        if 'transform-freqs' in self.mods:
-            # apply the frequency transformation described in the paper with
-            # d = 0.53.
-
-            d = 0.53
-            self.calculate_probabilities(lambda x: math.log(d + x, 2))
-        else:
-            self.calculate_probabilities()
+        self.calculate_probabilities()
 
     def calculate_probabilities(self, freq_transform=lambda x: x):
         num_total_docs = \
@@ -204,14 +135,11 @@ class NaiveBayes:
             # del category.freqs
 
     def classify_doc(self, filename):
-        'Classify a newsgroup document. Same return value as classify_str().'
+        'Classify a document. Same return value as classify_str().'
 
         return self.classify_str(self.get_text(filename))
 
     def classify_str(self, text):
-        # XXX: classifying raw strings (e.g. without calling through
-        #      classify_doc) doesn't work in conjunction with the
-        #      'pos-tagging' modification!
         tokens = self.tokens_for_text(text)
         probs = {}
         for label, category in self.categories.iteritems():
@@ -243,35 +171,12 @@ if __name__ == '__main__':
     parser.add_option('-i', '--interactive',
       dest='interactive', action='store_true', default=False,
       help='Interactively classify text fragments')
-    parser.add_option('-m', '--mods',
-      dest='mods', default=None, metavar='MODS',
-      help='Specify modifications to the original algorithm')
-    parser.add_option('-t', '--pos-tagger',
-      dest='pos_tagger', action='store_true', default=False,
-      help='Run the part-of-speech tagger on every file in training_dir ' +
-           '(and test_dir, if specified)')
-
     (opts, args) = parser.parse_args()
     if len(args) < 1:
         parser.print_help()
         sys.exit(1)
 
-    if opts.pos_tagger:
-        docs_ = docs(args[0])
-        if len(args) > 1:
-            docs_ = itertools.chain(docs_, docs(args[1]))
-        for (filename, _) in docs_:
-            with open('%s.tagged' % filename, 'w') as file:
-                file.write(invoke_pos_tagger(filename))
-                print 'Tagged \'%s\'' % filename
-        sys.exit(0)
-
-    mods = opts.mods.split(',') if opts.mods is not None else []
-    unknown_mods = set(mods).difference(set(NaiveBayes.ALL_MODS))
-    if len(unknown_mods) != 0:
-        print 'Warning: Unrecognized modifications: %s' % \
-          ','.join(unknown_mods)
-    nb = NaiveBayes(mods)
+    nb = NaiveBayes()
 
     print 'Learning on training data...'
     nb.learn(os.listdir(args[0]), docs(args[0]))
