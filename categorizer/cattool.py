@@ -44,6 +44,8 @@ if __name__ == '__main__':
       print ('_' * 60)
       print ('v' * 60)
       datum = toprocess.pop()
+      if 'text' not in datum:
+        continue
       print datum['text']
       c = ''
       while c.lower() not in ('n', 'p', 'q'):
