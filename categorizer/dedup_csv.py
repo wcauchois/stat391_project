@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""De-duplication on classified.csv. Prints the result to stdout,
+its up to you to >a.tmp && mv a.tmp classified.csv"""
 from config import CLASSIFIED_CSV
 from loaddata import read_csv
 

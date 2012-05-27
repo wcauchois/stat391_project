@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""De-duplication on toprocess.p."""
 import os, sys
 import cPickle as pickle
 
