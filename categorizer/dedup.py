@@ -8,8 +8,12 @@ if __name__ == '__main__':
   print 'Length before dedup: %d' % len(to_process)
   to_process_prime = []
   for tweet in to_process:
+    if 'text' not in tweet:
+      continue
     found = False
     for tweet_prime in to_process_prime:
+      if 'text' not in tweet_prime:
+        continue
       if tweet_prime['text'] == tweet['text']:
         found = True
         break
