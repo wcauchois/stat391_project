@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""Load data from the specified *.csv files and put it in a pickled file called
+toprocess.p. Will not work if toprocess.p already exists (to save you from overwriting it)."""
 import os, sys
 import cPickle as pickle
 

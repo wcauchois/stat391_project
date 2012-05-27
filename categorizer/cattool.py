@@ -1,4 +1,7 @@
 #!/usr/bin/python
+"""The categorization tool. Reads tweets from toprocess.p, you type "n" or "p" for
+negative or positive, it writes the labeled tweet to classified.csv and updates
+toprocess.p so that the tweet is no longer present (i.e. state is saved between invocations)"""
 import os, sys
 import cPickle as pickle
 from config import *
