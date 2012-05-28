@@ -18,28 +18,24 @@ try:
 except ImportError:
     pass
 
-PUNCTUATION = '.,;:\'\"?/\\()*&^%$#@![]{}|><-+_'
-
 NOTIFY = False
 
 DOC_RE = re.compile('.+\.txt$')
 
-def normalize_token(token):
-    """
-    Normalize a token by stripping punctuation from either end and removing
-    invalid characters (anything with an ASCII code outside the range
-    [32, 126]).
-    """
-    return ''.join(x for x in token.lower().strip(PUNCTUATION) \
-                   if ord(x) >= 32 and ord(x) <= 126)
+def concat(xs):
+    return reduce(lambda x, y: x + y)
 
-def is_valid_token(token):
-    """
-    Return whether a token should be considered by Naive Bayes or not.
-    Currently, empty tokens and tokens consisting entirely of punctuation
-    are discounted.
-    """
-    return not (token == '' or all(x in PUNCTUATION for x in token))
+def parse_tokens(input):
+    # Normalize by removing invalid characters (anything with an ASCII code
+    # outside the range [32, 126]).
+    return filter( lambda x: x and ord(x) >= 32 and ord(x) <= 126 and x != '&' \
+    # Split on spaces, and then split on all non-alphabetical characters,
+    # except '&'.
+                 , concat(e.split(r'([^\w\&]+)', x) for x in input.split()))
+
+# >>> example = "hello, world & how are you! :) ... &lt;&gt;&lt;"
+# >>> parse_tokens(example)
+# 'hello', ',', 'world', '&', 'how', 'are', 'you', '!', ':)', '...', '&lt', ';', '&gt', ';', '&lt', ';'
 
 def docs(data_dir):
     'Generate a tuple (filename, label) for every document in data_dir.'
@@ -71,12 +67,7 @@ class NaiveBayes:
         """
         self.cache = {}
 
-    def tokens_for_text(self, text):
-        """
-        Return all normalized, valid tokens for a string of text.
-        """
-        all_tokens = map(normalize_token, text.split())
-        return filter(is_valid_token, all_tokens)
+#        return filter(is_valid_token, all_tokens)
 
     class Category:
         def __init__(self, label):
@@ -111,7 +102,7 @@ class NaiveBayes:
         for filename, label in examples:
             category = self.categories[label]
             text = self.get_text(filename)
-            for token in self.tokens_for_text(text):
+            for token in parse_tokens(text):
                 category.freqs[token] += 1
                 self.vocab.add(token)
                 category.num_words += 1
