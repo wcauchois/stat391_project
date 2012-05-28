@@ -1,3 +1,6 @@
 *.class
 *.swp
 *.pyc
+report.aux
+report.log
+report.pdf
