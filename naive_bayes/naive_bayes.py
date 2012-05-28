@@ -22,16 +22,13 @@ NOTIFY = False
 
 DOC_RE = re.compile('.+\.txt$')
 
-def concat(xs):
-    return reduce(lambda x, y: x + y)
-
 def parse_tokens(input):
     # Normalize by removing invalid characters (anything with an ASCII code
     # outside the range [32, 126]).
     return filter( lambda x: x and ord(x) >= 32 and ord(x) <= 126 and x != '&' \
     # Split on spaces, and then split on all non-alphabetical characters,
     # except '&'.
-                 , concat(e.split(r'([^\w\&]+)', x) for x in input.split()))
+                 , sum(e.split(r'([^\w\&]+)', x) for x in input.split()))
 
 # >>> example = "hello, world & how are you! :) ... &lt;&gt;&lt;"
 # >>> parse_tokens(example)

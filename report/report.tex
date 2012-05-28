@@ -4,6 +4,14 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{verbatim}
+\usepackage{parskip}
+
+% Stuff for dot2tex
+\usepackage[x11names, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+
 
 \title{Stats 391 Project}
 \author{By \\ Henry Baba-Weiss, Bill Cauchois, Coral Peterson, and Michael Sloan}
@@ -14,13 +22,18 @@
 \maketitle
 \pagebreak
 
+\section { Background }
+
+Tweets are very short messages posted to Twitter, less than 140 characters, that sometimes contain twitter-specific conventions.  The brevity and conventions of Twitter make it a potentially interesting source of information for applying more naive statistical methods / learning techniques.  Many of the Tweets are written to be consumed without other context, making them ideal targets for more simplistic statistical methods.
+
 \section { Description }
 
-The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  Tweets are very short messages posted to Twitter, less than 140 characters, that sometimes contain twitter-specific conventions.  The brevity and conventions of Twitter make it a potentially interesting source of information for applying more naive statistical methods / learning techniques.  Many of the Tweets are written to be consumed without other context.
+The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  This ``sentiment'' is dichotomized into just two categories: ``Positive'' and ``Negative''.  The category ``Positive'' is used for posts that would otherwise go into a ``Neutral'' category, if it existed.  By mapping each word in the  is then turned into a vector, and considered to be some indicator that 
+
 
 \section { Maths }
 
-
+\input { figs/fig1.tex }
 
 \section{ Implementation }
 
@@ -102,7 +115,7 @@ In the case Mechanical turk, this cost is something on the order of \$0.01 per s
 
 %TODO: consider measuring this better.
 
-In the case of using the manual categorizer, we found that we could categorize tweets at about a rate of about 15 / min.  This means that with a solid hour of work, we could categorize 900 tweets.  In order to compute what this means for our price per tweet, we first need an estimate of the value of our time.  If our time is worth the pay of a typical entry-level fulltime software engineer, \$40 / hr, then each tweet costs $ \frac{ \$40 \text{min}^{-1} }{ 900 \text{tweets} \text{min}^-1 } \approx \$0.045 $.  However, we are all in school!  Perhaps it would be more appropriate to use the amount made as a TA: $ \frac{ \$10.50 \text{min}^{-1} }{ 900 \text{tweets} \text{min}^-1 } \approx \$0.015 $.  This is much more in line with the amount that mechanical turk costs.
+In the case of using the manual categorizer, we found that we could categorize tweets at about a rate of about $ 15 \text{tweets} / \text{min} $.  This means that with a solid hour of work, we could categorize 900 tweets.  In order to compute what this means for our price per tweet, we first need an estimate of the value of our time.  If our time is worth the pay of a typical entry-level fulltime software engineer, $ \$40 / \text{hr} $, then each tweet costs $ \$40 \text{min}^{-1} / ( 900 \text{ tweets} * \text{min}^-1 \approx \$0.045 * \text{tweets}^-1 $.  However, we are all in school!  Perhaps it would be more appropriate to use the amount made as a TA: $ \$10.50 * \text{min}^{-1} / ( 900 * \text{tweets} * \text{min}^{-1} ) \approx \$0.015 $.  This is much more in line with the amount that mechanical turk costs.
 
 Either way, it would be cool to make the most of the resource expenditure involved in categorization.  An interesting way of approaching this problem would be to write it down as an optimization problem that relates the cost of data collection with the potential for information gain:
 
@@ -127,7 +140,7 @@ Tweets use ``hash-tag'' prefixes of words or compounded words in order to indica
 Some ideas for enhancements:
 
 \begin{enumerate}[1)]
-\item Use bi-grams / tri-grams.  Instead of just relying on one of these models, it would be interesting to
+\item Use bi-grams / tri-grams.  Instead of just making a distinct choice here, to use, say, bi-grams instead of uni-grams as the unit of association, it would be interesting to 
 
 \item Use more sophisticated models to infer distributions that observe a co-dependency on terms.  In other words, find cases in which the presence of two words in the same tweet is significant, whereas each in isolation is not.
 
