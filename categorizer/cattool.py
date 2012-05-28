@@ -44,6 +44,8 @@ if __name__ == '__main__':
   print 'enter n for negative, p for positive'
   with open(CLASSIFIED_CSV, 'a') as classified_stream:
     while True:
+      if len(toprocess) == 0:
+        print 'you\'re done!!'
       print ('_' * 60)
       print ('v' * 60)
       datum = toprocess.pop()
@@ -64,4 +66,5 @@ if __name__ == '__main__':
         classified_stream.flush()
         pickle.dump(toprocess, open(TOPROCESS_P, 'wb'))
       else:
+        print '%d tweets left to classify' % len(toprocess)
         break
