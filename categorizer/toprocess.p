@@ -707,25 +707,4 @@ p304
 sg5
 S'Mikey $mith'
 p305
-sa(dp306
-g3
-S"Emoji's are so fun to play with!"
-p307
-sg5
-S'Sara Stevens'
-p308
-sa(dp309
-g3
-S'all of the jaquan`s swear they got hoes ..'
-p310
-sg5
-S'A$AP Trinity .'
-p311
-sa(dp312
-g3
-S'Welp bout to finish chilling until my black ass babyfather show up'
-p313
-sg5
-S'Da Envied Bitch'
-p314
 sa.
