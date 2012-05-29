@@ -33,6 +33,22 @@ The goal of our project is to apply statistical tools to build a model which pre
 
 \section { Maths }
 
+The ``Naive Bayes classifier'' takes the following form:
+
+\begin{align*}
+p(C \vert F_1,\dots,F_n) = \frac{1}{Z}  p(C) \prod_{i=1}^n p(F_i \vert C)
+\end{align*}
+
+This formula comes from assuming that the conditions, $ F_n $, are independent.  This allows us to extract the compound probability, $ p(F_1,\cdots,F_n) = \prod_{i=1}^n p(F_i) $ from the usual formula for Bayes' theorem:
+
+\begin{align*}
+(C \vert F_1,\dots,F_n) & = \frac{p(C) p(F_1,\dots,F_n\vert C)}{p(F_1,\dots,F_n)}    \\
+                        & \approx \frac{p(C) \prod_{i=1}^n p(F_i)}{p(F_1,\dots,F_n)} \\
+                        & \approx \frac{p(C) \prod_{i=1}^n p(F_i)}{Z}
+\end{align*}
+(Where $ Z = p(F_1,\cdots,F_n) $ )
+
+
 \input { figs/fig1.tex }
 
 \section{ Implementation }
