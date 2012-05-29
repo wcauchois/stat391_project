@@ -22,13 +22,20 @@ NOTIFY = False
 
 DOC_RE = re.compile('.+\.txt$')
 
+def valid_char(c):
+    return c and ord(c) >= 32 and ord(c) <= 126 and c != '&'
+
+# Normalize by removing invalid characters (anything with an ASCII code
+# outside the range [32, 126]).
+#return filter( lambda x: x and ord(x) >= 32 and ord(x) <= 126 and x != '&' \
+# Split on spaces, and then split on all non-alphabetical characters,
+# except '&'.
 def parse_tokens(input):
-    # Normalize by removing invalid characters (anything with an ASCII code
-    # outside the range [32, 126]).
-    return filter( lambda x: x and ord(x) >= 32 and ord(x) <= 126 and x != '&' \
-    # Split on spaces, and then split on all non-alphabetical characters,
-    # except '&'.
-                 , sum(e.split(r'([^\w\&]+)', x) for x in input.split()))
+    dirty_tokens = sum([x.split(r'([^\w\&]+)') for x in input.split()], [])
+    tokens = []
+    for t in dirty_tokens:
+        tokens.append(''.join(filter(valid_char, t)))
+    return tokens
 
 # >>> example = "hello, world & how are you! :) ... &lt;&gt;&lt;"
 # >>> parse_tokens(example)
@@ -128,7 +135,7 @@ class NaiveBayes:
         return self.classify_str(self.get_text(filename))
 
     def classify_str(self, text):
-        tokens = self.tokens_for_text(text)
+        tokens = parse_tokens(text)
         probs = {}
         for label, category in self.categories.iteritems():
             probs[label] = category.prob
