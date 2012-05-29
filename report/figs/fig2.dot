@@ -1,0 +1,45 @@
+digraph G {
+  rankdir = "LR"
+  node [shape=record, font-size=10];
+
+  the         [label="{ {<p> Pos|<n> Neg}| the        }"];
+  most        [label="{ {<p> Pos|<n> Neg}| most       }"];
+  interesting [label="{ {<p> Pos|<n> Neg}| interesting}"];
+  birthday    [label="{ {<p> Pos|<n> Neg}| birthday   }"];
+  yet         [label="{ {<p> Pos|<n> Neg}| yet        }"];
+  ...         [label="{ {<p> Pos|<n> Neg}| ...        }"];
+  thanks      [label="{ {<p> Pos|<n> Neg}| thanks     }"];
+  to          [label="{ {<p> Pos|<n> Neg}| to         }"];
+  a           [label="{ {<p> Pos|<n> Neg}| a          }"];
+  very        [label="{ {<p> Pos|<n> Neg}| very       }"];
+  beautiful   [label="{ {<p> Pos|<n> Neg}| beautiful  }"];
+  friend      [label="{ {<p> Pos|<n> Neg}| friend     }"];
+  of          [label="{ {<p> Pos|<n> Neg}| of         }"];
+  mine        [label="{ {<p> Pos|<n> Neg}| mine       }"];
+  *           [label="{ {<p> Pos|<n> Neg}| *          }"];
+  all         [label="{ {<p> Pos|<n> Neg}| all        }"];
+  smiles      [label="{ {<p> Pos|<n> Neg}| smiles     }"];
+
+  "Pos Tweet_1" -> the:p;
+  "Pos Tweet_1" -> most:p;
+  "Pos Tweet_1" -> interesting:p;
+  "Pos Tweet_1" -> birthday:p;
+  "Pos Tweet_1" -> yet:p;
+  "Pos Tweet_1" -> ...:p [label="2"];
+  "Pos Tweet_1" -> thanks:p;
+  "Pos Tweet_1" -> to:p;
+  "Pos Tweet_1" -> a:p;
+  "Pos Tweet_1" -> very:p;
+  "Pos Tweet_1" -> beautiful:p;
+  "Pos Tweet_1" -> friend:p;
+  "Pos Tweet_1" -> of:p;
+  "Pos Tweet_1" -> mine:p;
+  "Pos Tweet_1" -> *:p [label="2"];
+  "Pos Tweet_1" -> all:p;
+  "Pos Tweet_1" -> smiles:p;
+
+#  subgraph S2 {
+#    label = "Negative";
+#I always see people get mad and into argument over the littlest things  and I hate arguing .
+#  }
+}

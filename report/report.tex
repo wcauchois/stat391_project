@@ -28,10 +28,12 @@ Tweets are very short messages posted to Twitter, less than 140 characters, that
 
 \section { Description }
 
-The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  This ``sentiment'' is dichotomized into just two categories: ``Positive'' and ``Negative''.  The category ``Positive'' is used for posts that would otherwise go into a ``Neutral'' category, if it existed.  By mapping each word in the  is then turned into a vector, and considered to be some indicator that 
+The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  This ``sentiment'' is dichotomized into just two categories: ``Positive'' and ``Negative''.  The category ``Positive'' is used for posts that would otherwise go into a ``Neutral'' category, if it existed.  By mapping each word in the tweet to the amount that the term seems to be biased towards positive or negative tweets,
 
 
 \section { Maths }
+
+\subsection { Naive Bayes }
 
 The ``Naive Bayes classifier'' takes the following form:
 
@@ -39,15 +41,51 @@ The ``Naive Bayes classifier'' takes the following form:
 p(C \vert F_1,\dots,F_n) = \frac{1}{Z}  p(C) \prod_{i=1}^n p(F_i \vert C)
 \end{align*}
 
-This formula comes from assuming that the conditions, $ F_n $, are independent.  This allows us to extract the compound probability, $ p(F_1,\cdots,F_n) = \prod_{i=1}^n p(F_i) $ from the usual formula for Bayes' theorem:
+This formula comes from assuming that the conditions, $ F_n $, are independent.  The $ Z $ is a scaling factor, which is irrelevant for the purposes of comparison.  This allows us to extract the compound probability, $ p(F_1,\cdots,F_n) = \prod_{i=1}^n p(F_i) $ from the usual formula for Bayes' theorem:
 
 \begin{align*}
-(C \vert F_1,\dots,F_n) & = \frac{p(C) p(F_1,\dots,F_n\vert C)}{p(F_1,\dots,F_n)}    \\
-                        & \approx \frac{p(C) \prod_{i=1}^n p(F_i)}{p(F_1,\dots,F_n)} \\
-                        & \approx \frac{p(C) \prod_{i=1}^n p(F_i)}{Z}
+p(C \vert F_1,\dots,F_n) & = \frac{p(C) p(F_1,\dots,F_n\vert C)}{p(F_1,\dots,F_n)}    \\
+                         & \approx \frac{p(C) \prod_{i=1}^n p(F_i \vert C)}{p(F_1,\dots,F_n)} \\
+                         & \approx \frac{p(C) \prod_{i=1}^n p(F_i \vert C)}{Z}
 \end{align*}
 (Where $ Z = p(F_1,\cdots,F_n) $ )
 
+In essence, this means that the likelihood of a given outcome is the product of the probabilities contributed by each of the predictors.  $ Z $ can be disregarded, because usually we are interested in comparing two outcomes.  For our usage here, we will assume that $C_1$ and $C_2$ are disjoint, which is given by our problem statement dichotomizing ``Positive'' and ``Negative'' sentiment.  In order to figure out which is more likely given all of $F_n$, we could calculate:
+
+\begin{align*}
+  & \frac{ p(C_1 \vert F_1,\dots,F_n) } { P(C_1 \vert F_1,\dots,F_n) + P(C_2 \vert F_1,\dots,F_n) } \\
+  & \\
+  \approx & \frac{\frac{p(C_1) \prod_{i=1}^n p(F_i \vert C_1)}{Z}}{\frac{p(C_1) \prod_{i=1}^n p(F_i \vert C_1)}{Z} + \frac{p(C_2) \prod_{i=1}^n p(F_i \vert C_2)}{Z}} \\
+  & \\
+  \approx & \frac{p(C_1) \prod_{i=1}^n p(F_i \vert C_1)}{p(C_1) \prod_{i=1}^n p(F_i \vert C_1) + p(C_2) \prod_{i=1}^n p(F_i \vert C_2)}
+\end{align*}
+
+This results in a distribution on a discrete binary variable (the denominator specifies the space of consideration - either $ C_1 $ or $ C_2 $).  
+
+
+%Since we assumed that $ C_1 $ and $ C_2 $ are disjoint, we can show that the pieces of evidence, $ F_n $, are disjoint (yielding complementary probabilities):
+
+%\begin{align*}
+%  p(C_1 \vert F_1,\dots,F_n) + p(C_2 \vert F_1,\dots,F_n) = 1 \\
+%  \frac{p(C_1) \prod_{i=1}^n p(F_i \vert C_1)}{Z} + \frac{p(C_2) \prod_{i=1}^n p(F_i \vert C)}{Z} = 1 \\
+%        p(C_1) \prod_{i=1}^n p(F_i \vert C_1)     +       p(C_2) \prod_{i=1}^n p(F_i \vert C_2)   = Z \\
+%        p(C_1) \prod_{i=1}^n p(F_i \vert C_1)     + (1 -  p(C_1))\prod_{i=1}^n p(F_i \vert \overline{C_1})) = Z \\
+%        p(C_1) \prod_{i=1}^n p(F_i \vert C_1)     + (1 -  p(C_1))\prod_{i=1}^n \frac{p(F_i \cap \overline{C_1})}{p(\overline{C_1})} = Z \\
+%        p(C_1) \prod_{i=1}^n p(F_i \vert C_1)     + (1 -  p(C_1))\prod_{i=1}^n \frac{1 - p(F_i \cap C_1)}{1 - p(C_1)} = Z \\
+%\end{align*}
+
+\subsection { Sparsity assumptions }
+
+A more recent development in sensor post-processing / learning models is an idea that's referred to as ``compressive sensing'', which attempts to recover more accurate models by assuming that the process being studied is ``sparse''.  Many continuous optimization problems can be posed in terms of something similar to the $ L_2 $ norm.  This norm creates surfaces that resemble a parabola - the slope near zero is low.  The key observation of ``compressive sensing'' is that optimizing things that much more resemble the structure of the linear norm, $ L_1 $, creates more extreme slopes at the origin.  This encourages values to be set to zero, hence the word ``sparsity''.  Correspondingly, this encourages the non-zero elements to be more significant than they would be otherwise.
+
+The reason these concepts are relevant to our study is that it gives a framework within which to address the issue that many of the $ p(F_i \vert C) $ probabilities are close to $ 0.5 $ or are supported by few samples.
+
+
+\subsection{ Graphical Models }
+
+The study of graphical models involves the crossover between graph theory and probability theory, and gives a uniform perspective of many techniques for creating models and categorizers.  These models express dependencies between states of various nature relating to a system - in the case of ``Partially Observable Markov Decision Processes'', this includes observations and states.  The dependencies among the states indicate the temporal interdependencies of the states, while also being informed by the observations.  The current state of the belief distribution is used as an input, along with these observations, to evaluate the joint probabilities at each state, of now inhabiting that state.  Thankfully, our model does not need to worry about anything quite like these temporal dependencies (but if we worried about context, something like this would be needed!).
+
+Anyway, since our system is merely Naive Bayes, it can be expressed quite trivially as a graphical model:
 
 \input { figs/fig1.tex }
 
@@ -73,7 +111,7 @@ This is a real tweet encountered while using the tool - one thing we learned fro
 ____________________________________________________________
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 Waiting For The Sun To Go Awayy  So I Could Go Run!
-classified as POSITIVE
+classified as NEGATIVE
 ____________________________________________________________
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 I always see people get mad and into argument over the littlest things  and
@@ -102,7 +140,7 @@ The most interesting birthday yet... thanks to a very beautiful friend of mine..
 classified as POSITIVE
 \end{verbatim}
 
-It was good to see some extremely positive posts!  Some were also far more ridiculously negative than the examples here.  For more neutral posts, or random posts that likely require more context, the categorization ``Positive'' was used.
+Some were also far more ridiculously negative than the examples here.  For more neutral posts, or random posts that likely require more context, the categorization ``Positive'' was used, as can be seen by the positive categorization given to ``he was not sitting on a boar''.
 
 \subsection { Manual Web-Based Categorization }
 
@@ -113,13 +151,14 @@ It was good to see some extremely positive posts!  Some were also far more ridic
 One of the main assumptions of this project is that the chosen lexical units, in this case, words, are independent predictors of the classification of the Tweet.  This assumption cannot be correct, for something as complicated as language, but this does imply that the choice of partitioning the lexical units does matter.  Even after we have decided to use single-word lexemes, this leaves us with a few choices:
 
 \begin{enumerate}[1)]
+\item Do we maintain capitalization?
 \item How do we handle ``\#hash'' keywords?
 \item How do we handle emoticons like ``:)'', ``:('', and ``:')'' - these are the closest thing to a direct encoding of sentiment - so preserving them for the analysis is important!
 \item How do we handle ``\&gt;'', ``\&lt;'', and other HTML entities?  These particular examples are interesting, because they are conventionally used to indicate something good (``\&gt;'') or bad (``\&lt;'').
 \item How is regular punctuation reported?
 \end{enumerate}
 
-Our solution to these considerations was to break the text on the whitespace and punctuation characters.  In order to reasonably handle HTML entities, ``\&'' would be included with any tokens it prefixes, while ``;'' is ignored.  The other punctuation is grouped with adjacent punctuation, and each group reported as a separate word.  This handles the extremely informative punctuation such as emoticons, while also handling regular punctuation.  For example, it can be imagined that ``!'' might oftentimes terminate positive tweets, while ``...'' is used to terminate negative tweets.
+Our solution to these considerations was to break the text on the whitespace / punctuation characters, and lowercase everything.  In order to reasonably handle HTML entities, ``\&'' would be included with any tokens it prefixes, while ``;'' is ignored.  The other punctuation is grouped with adjacent punctuation, and each group reported as a separate word.  This handles the extremely informative punctuation such as emoticons, while also handling regular punctuation.  For example, it can be imagined that ``!'' might oftentimes terminate positive tweets, while ``...'' is used to terminate negative tweets.
 
 \subsection { Bayesian Categorizer }
 
@@ -127,18 +166,13 @@ Our solution to these considerations was to break the text on the whitespace and
 
 One issue with this project is that, similarly to many studies, there is cost associated with taking additional samples.
 
-In the case Mechanical turk, this cost is something on the order of \$0.01 per sample. %TODO: put in real value.
+In the case Mechanical turk, the cost was $ \$1.16 / 40 \text{ tweets} ~ \$0.029 \text{ tweets}^{-1}$. 
 
 %TODO: consider measuring this better.
 
-In the case of using the manual categorizer, we found that we could categorize tweets at about a rate of about $ 15 \text{ tweets} / \text{min} $.  This means that with a solid hour of work, we could categorize 900 tweets.  In order to compute what this means for our price per tweet, we first need an estimate of the value of our time.  If our time is worth the pay of a typical entry-level fulltime software engineer, $ \$40 / \text{hr} $, then each tweet costs $ \$40 \text{min}^{-1} / ( 900 \text{ tweets} * \text{min}^-1 \approx \$0.045 * \text{tweets}^-1 $.  However, we are all in school!  Perhaps it would be more appropriate to use the amount made as a TA: $ \$10.50 * \text{min}^{-1} / ( 900 * \text{tweets} * \text{min}^{-1} ) \approx \$0.015 $.  This is much more in line with the amount that mechanical turk costs.
+In the case of using the manual categorizer, we found that we could categorize tweets at about a rate of about $ 15 \text{ tweets} / \text{min} $.  This means that with a solid hour of work, we could categorize 900 tweets.  In order to compute what this means for our price per tweet, we first need an estimate of the value of our time.  If our time is worth the pay of a typical entry-level fulltime software engineer, $ \$40 / \text{hr} $, then each tweet costs $ \$40 \text{min}^{-1} / ( 900 \text{ tweets} * \text{min}^-1 \approx \$0.045 * \text{tweets}^-1 $.  However, we are all in school!  Perhaps it would be more appropriate to use the amount made as a TA: $ \$10.50 * \text{min}^{-1} / ( 900 * \text{tweets} * \text{min}^{-1} ) \approx \$0.015 $.  This is around half as much as the cost of Mechanical Turk, which incentivized us to do more manual than ``mechanized'' sampling.
 
 Either way, it would be cool to make the most of the resource expenditure involved in categorization.  An interesting way of approaching this problem would be to write it down as an optimization problem that relates the cost of data collection with the potential for information gain:
-
-\begin{align*}
-\end{align*}
-
-
 
 \section { Results }
 
@@ -148,7 +182,7 @@ Either way, it would be cool to make the most of the resource expenditure involv
 
 %TODO: figure out where to put this / rename.
 
-Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.  
+Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.
 
 
 \section { Future Work}
@@ -156,7 +190,7 @@ Tweets use ``hash-tag'' prefixes of words or compounded words in order to indica
 Some ideas for enhancements:
 
 \begin{enumerate}[1)]
-\item Use bi-grams / tri-grams.  Instead of just making a distinct choice here, to use, say, bi-grams instead of uni-grams as the unit of association, it would be interesting to 
+\item Use bi-grams / tri-grams.  Instead of just making a distinct choice here, to use, say, bi-grams instead of uni-grams as the unit of association, it would be interesting to try to mix the categories.  When a particularly 
 
 \item Use more sophisticated models to infer distributions that observe a co-dependency on terms.  In other words, find cases in which the presence of two words in the same tweet is significant, whereas each in isolation is not.
 
@@ -165,6 +199,6 @@ Some ideas for enhancements:
 \item Use context derivable from the edges derivable from the hash-tag / conversational graph.  This would further inform the previous enhancement idea.
 \end{enumerate}
 
-In essence, these further enhancements are each a more sophisticated usage / implementation of NLP (natural language processing) techniques. 
+In essence, these further enhancements are each a more sophisticated usage / implementation of NLP (natural language processing) techniques, that would generically enhance many related categorization tasks.
 
 \end{document}
