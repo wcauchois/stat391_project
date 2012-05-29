@@ -728,46 +728,4 @@ p313
 sg5
 S'Da Envied Bitch'
 p314
-sa(dp315
-g3
-S'The things people say and do&lt;&lt;&lt;&lt;'
-p316
-sg5
-S'Antonio Gooden'
-p317
-sa(dp318
-g3
-S"just promise me you won't fall in love with me ."
-p319
-sg5
-S'Breanna Buck'
-p320
-sa(dp321
-g3
-S'requested Moments by One Direction on Default Name'
-p322
-sg5
-S'Taylor Roberts'
-p323
-sa(dp324
-g3
-S'Ray Charles to the bullshit.'
-p325
-sg5
-S'BriCrowe'
-p326
-sa(dp327
-g3
-S'When you really care about someone  their mistakes never change our feelings because the mind gets angry but the heart that still cares'
-p328
-sg5
-S'Norris scott'
-p329
-sa(dp330
-g3
-S'How do you start the game so well and then go completely cold!? Wahhhh.'
-p331
-sg5
-S'Courtney Girt'
-p332
 sa.
