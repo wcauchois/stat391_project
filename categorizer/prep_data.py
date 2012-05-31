@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser = OptionParser(usage='usage: %prog input_dir output_dir')
     (opts, args) = parser.parse_args()
 
-    if len(args) < 2:
+    if len(args) != 2:
         parser.print_help()
         sys.exit(1)
 
