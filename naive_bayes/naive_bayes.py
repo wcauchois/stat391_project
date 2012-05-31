@@ -10,11 +10,12 @@ import os, math, sys, re
 import itertools
 import random
 from optparse import OptionParser
+import cPickle as pickle
 
 try:
     import psyco
     psyco.full()
-    print 'Using psyco JIT'
+    print >>sys.stderr, 'Using psyco JIT'
 except ImportError:
     pass
 
@@ -85,6 +86,44 @@ class NaiveBayes:
             self.prob_word = {} # maps <word> to the probability that <word>
                                 # will be present given that the document is
                                 # in this category.
+        def to_dict(self):
+          return {
+            'label': self.label,
+            'freqs': dict(self.freqs),
+            'num_words': self.num_words,
+            'num_docs': self.num_docs,
+            'prob': self.prob,
+            'prob_word': self.prob_word
+          }
+        
+        @classmethod
+        def from_dict(cls, d):
+          c = cls(d['label'])
+          c.freqs = ZeroDict(d['freqs'])
+          c.num_words = d['num_words']
+          c.num_docs = d['num_docs']
+          c.prob = d['prob']
+          c.prob_word = d['prob_word']
+          return c
+
+    def to_dict(self):
+      cats = {}
+      for label, cat in self.categories.iteritems():
+        cats[label] = cat.to_dict()
+      return {
+        'categories': cats,
+        'vocab': self.vocab
+      }
+
+    @classmethod
+    def from_dict(cls, d):
+      nb = cls()
+      cats = {}
+      for label, cat in d['categories'].iteritems():
+        cats[label] = cls.Category.from_dict(cat)
+      nb.categories = cats
+      nb.vocab = d['vocab']
+      return nb
 
     def precache(self, examples):
         for filename, _ in examples:
@@ -166,15 +205,32 @@ if __name__ == '__main__':
     parser.add_option('-i', '--interactive',
       dest='interactive', action='store_true', default=False,
       help='Interactively classify text fragments')
+    parser.add_option('-m', '--model', default=None,
+      dest='model', help='Save the model (or if in interactive mode, load it)',
+      metavar='MODEL')
     (opts, args) = parser.parse_args()
-    if len(args) < 1:
+    if len(args) < 1 and not opts.interactive:
         parser.print_help()
         sys.exit(1)
+
+    if opts.interactive:
+      if opts.model is None:
+        print 'Please provide a model'
+        sys.exit(1)
+      d = pickle.load(open(opts.model, 'rb'))
+      nb = NaiveBayes.from_dict(d)
+      text = sys.stdin.read()
+      print nb.classify_str(text)[0]
+      sys.exit(0)
 
     nb = NaiveBayes()
 
     print 'Learning on training data...'
     nb.learn(os.listdir(args[0]), docs(args[0]))
+    if opts.model is not None:
+      print 'Saving model to %s' % opts.model
+      with open(opts.model, 'wb') as f:
+        pickle.dump(nb.to_dict(), f)
     print 'Finished learning'
     # don't output individual accuracies for the training data
     accuracy = nb.test_on(docs(args[0]))
