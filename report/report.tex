@@ -24,11 +24,11 @@
 
 \section { Background }
 
-Tweets are very short messages posted to Twitter, less than 140 characters, that sometimes contain twitter-specific conventions.  The brevity and conventions of Twitter make it a potentially interesting source of information for applying more naive statistical methods / learning techniques.  Many of the Tweets are written to be consumed without other context, making them ideal targets for more simplistic statistical methods.
+Tweets are very short messages posted to the online micro-blogging service Twitter. By convention less than 140 characters in length, tweets may also contain Twitter-specific idioms such as hashtags and @ mentions.  The brevity and concision of Twitter make it a potentially interesting source of information for applying more naive statistical methods and learning techniques.  Many of the Tweets are written to be consumed without additional context, making them ideal targets for more simplistic statistical methods.
 
 \section { Description }
 
-The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  This ``sentiment'' is dichotomized into just two categories: ``Positive'' and ``Negative''.  The category ``Positive'' is used for posts that would otherwise go into a ``Neutral'' category, if it existed.  By mapping each word in the  is then turned into a vector, and considered to be some indicator that 
+The goal of our project is to apply statistical tools to build a model which predicts the ``sentiment'' of tweets.  This sentiment is dichotomized into just two categories: ``positive'' and ``negative''.  The positive category is used for posts that would otherwise go into a neutral category, if it existed.  By mapping each word in the  is then turned into a vector, and considered to be some indicator that %% TODO
 
 
 \section { Maths }
@@ -53,9 +53,22 @@ This formula comes from assuming that the conditions, $ F_n $, are independent. 
 
 \section{ Implementation }
 
+The implementation of our project can be broadly divided into several different components. Before performing any classification, we first had to collect data and then label that data. We implemented a \textbf{scraper} in Python to aggregate raw tweets from Twitter's feed of recent tweets. Next, we used several different methods to label the tweets as positive or negative in order to create a training set for our classifier. These methods included \textbf{Mechanical Turk}, a web-based service that lets you pay others to perform classification; \textbf{manual console categorization}, wherein we manually classified tweets using a console program; and \textbf{manual web-based categorization}, wherein we manually classified tweets using a web application. Now that we had labeled data, the next challenge was \textbf{lexing} that data to create a bag of words representation for each tweet. Finally, we built our \textbf{Bayesian categorizer}.
+
 \subsection { Scraper }
 
+The first component we built was a scraper to grab random tweets from Twitter. To do so, we used the \texttt{twitter.Api().GetPublicTimeline()} method on the Twitter Python API, which in turn uses HTTP REST to grab the most recent tweets from the public, global timeline. One problem we ran into was that not all of these tweets were in English. In order to discard tweets that weren't in English, we relied upon a Java library called TextCat that performs text categorization into different languages. So we created a small program that read in a tweet, and outputted the language in which that tweet was written. Then, we could call into this program from Python and use it to discard any tweet for which the output from TextCat was \emph{not} ``english''. The output from our scraper was stored in comma-separated values format. Here is an example listing (including the header):
+
+\begin{verbatim}
+name,text
+Marcus Graham ,Go somewhere then RT @NurseJessica_88: Im seriously needing to get out the house
+Brett taborelli,Here it goes.
+Jessica Stein,Thank god I'll be waking up in sea isle instead of havertown tomorrow
+\end{verbatim}
+
 \subsection { Mechanical Turk }
+
+Our first approach to solving the problem of labeling our tweets relied upon a service called Mechanical Turk. Mechanical Turk bills itself as ``an online crowdsourcing marketplace''. Crowdsourcing is a recently coined term that refers to outsourcing tasks to a distributed group of people, usually via the internet. Basically, MTurk enables users known as Requesters to post tasks known as HITs (human intelligence tasks) for a distributed force of Workers to perform for a small fee. There are several different types of HITs, but the type we were interested in was the classification HIT, wherein a Worker assigns one of $n$ categories to a piece of data. MTurk turned out to be relatively easy to use. A web interface allows you to upload a dataset in comma-separated values format and turn it into a series of HITs, which you can then deploy to the marketplace. You must pre-pay by depositing money into an MTurk account, and then your HITs are live. The only problem we faced with this approach was the cost: it cost about $\$1.00$ to classify 40 tweets. For us, this was prohibitively expensive, and thus we developed some manual classification methods for ourselves.
 
 \subsection { Manual Console Categorization }
 
