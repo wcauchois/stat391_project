@@ -354,7 +354,7 @@ V = P_u * U(F_1,\dots,F_n) - P(F_1,\dots,F_n)
 where $ U(F_1,\dots,F_n) $ is some approximation of the amount of uncertainty involved in classifying a document with the features $ F_1,\dots,F_n $, and $ P(F_1,\dots,F_n) $ is the cost of human classification.  $ P_u $ is a coefficient which determines the dollar value of a reduction in uncertainty.  A definition for $ U $ might looks something like:
 
 \begin{align*}
-U(F_1,\dots,F_n) = N_1 + \dots + N_n
+U(F_1,\dots,F_n) = \frac {1} {\frac{N_1}{\vert 0.5 - P(F_1 \vert C_1) \vert} + \dots + \frac{N_n}{\vert 0.5 - P(F_n \vert C_1) \vert}}
 \end{align*}
 
 \subsection { Sparsity assumptions }
