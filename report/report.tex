@@ -75,26 +75,6 @@ log p(C_1) + \sum_{i=1}^n log p(F_i \vert C_1) & \stackrel{\text{?}}{\leq} log p
 
 \subsection { Connections to Advanced Topics }
 
-\subsubsection { Sparsity assumptions }
-
-A more recent development in sensor post-processing / learning models is an idea that's referred to as \emph{compressive sensing}, which attempts to recover more accurate models by assuming that the process being studied is \emph{sparse}.  Many continuous optimization problems can be posed in terms of something similar to the $ L_2 $ norm (e.g. least squares)  This norm creates surfaces that resemble a cone.  As such, if you fix any of the parameters, you get conic,   The key observation of \emph{compressive sensing} is that optimizing things that much more resemble the structure of the linear norm, $ L_1 $, creates more extreme slopes along the axii, encouraging settling there.  This encourages values to be set to zero, hence the word \emph{sparsity}.  Technically, sparsity would involve minimizing the $ L_0 $ norm, which corresponds to the number of non-zero elements of the vector.  However, this becomes a very difficult, combinatorially complex, discrete optimization problem (on a space with cardinality $ | \{T, F\}^n | =  2^n $).  Researchers have come up with efficient ways of minimizing the $ L_1 $ norm and have shown that $ L_1 $ is a good approximation for minimizing $ L_0 $.
-
-Sparsity is interesting for a number of reasons.  One is that it is a good optimization.  If we adopt a sparse representation for the learned model, then evaluating the model consists of iterating its non-zero elements.  Another benefit is that for some domains, sparsity is a reasonable assumption, as there is some underlying cause for the input, with added noise.
-
-This is the reason that these considerations are relevant - it gives a philosophical motivation for systematically ignoring some of the features in our model.  We can imagine running an optimization that determines the probability used to represent a particular $ P(F_i \vert C) $.  This would deviate from the probability indicated by the actual frequency, as a cost function related to the overall distance from $ 0.5 $ would be applied.  In other words, you need to ``buy'' discriminatory power, under the assumption that the weak features are noisy disinformation.
-
-As a first approximation, to test whether this idea might have some value to it for this application, we removed the features that weren't highly dichotomized.  This was done by removing the features that satisfy $ \vert \frac{P(F_i \vert C_1)}{P(F_i \vert C_1) + P(F_i \vert C_2)} - 0.5 \vert \leq \delta $, where $ \delta $ is the distance from $ 0.5 $ that should be cropped.
-
-Unfortunately, strangely, no value of $ \delta $ yielded an increase in the performance of the classifier on the test data.  It's possible that pursuing a more theoretically grounded approach to this, that also takes into account the quantity of samples involving the feature, would yield better results.
-
-\subsubsection{ Graphical Models }
-
-The study of graphical models involves the crossover between graph theory and probability theory, and gives a uniform perspective of many techniques for creating models and categorizers.  These models express dependencies between states of various nature relating to a system - in the case of ``Partially Observable Markov Decision Processes'', this includes observations and states.  The dependencies among the states indicate the temporal interdependencies of the states, while also being informed by the observations.  The current state of the belief distribution is used as an input, along with these observations, to evaluate the joint probabilities at each state, of now inhabiting that state.  Thankfully, our model does not need to worry about anything quite like these temporal dependencies (but if we worried about context, something like this would be needed!).
-
-Anyway, since our system is merely Naive Bayes, it can be expressed quite trivially as a graphical model:
-
-\input { figs/fig1.tex }
-
 \section{ Implementation }
 
 The implementation of our project can be broadly divided into several different components. Before performing any classification, we first had to collect data and then label that data. We implemented a \textbf{scraper} in Python to aggregate raw tweets from Twitter's feed of recent tweets. Next, we used several different methods to label the tweets as positive or negative in order to create a training set for our classifier. These methods included \textbf{Mechanical Turk}, a web-based service that lets you pay others to perform classification; \textbf{manual console categorization}, wherein we manually classified tweets using a console program; and \textbf{manual web-based categorization}, wherein we manually classified tweets using a web application. Now that we had labeled data, the next challenge was \textbf{lexing} that data to create a bag of words representation for each tweet. Finally, we built our \textbf{Bayesian categorizer}. We also built a \textbf{web frontend}.
@@ -286,7 +266,7 @@ It looks like, at least in the test set, more negative examples were misclassifi
 
 Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.
 
-\section { Future Work}
+\section { Future Work }
 
 Some ideas for enhancements:
 
@@ -301,5 +281,27 @@ Some ideas for enhancements:
 \end{enumerate}
 
 In essence, these further enhancements are each a more sophisticated usage / implementation of NLP (natural language processing) techniques, that would generically enhance many related categorization tasks.
+
+\subsection { Connections to Advanced Topics }
+
+\subsubsection { Sparsity assumptions }
+
+A more recent development in sensor post-processing / learning models is an idea that's referred to as \emph{compressive sensing}, which attempts to recover more accurate models by assuming that the process being studied is \emph{sparse}.  Many continuous optimization problems can be posed in terms of something similar to the $ L_2 $ norm (e.g. least squares)  This norm creates surfaces that resemble a cone.  As such, if you fix any of the parameters, you get conic,   The key observation of \emph{compressive sensing} is that optimizing things that much more resemble the structure of the linear norm, $ L_1 $, creates more extreme slopes along the axii, encouraging settling there.  This encourages values to be set to zero, hence the word \emph{sparsity}.  Technically, sparsity would involve minimizing the $ L_0 $ norm, which corresponds to the number of non-zero elements of the vector.  However, this becomes a very difficult, combinatorially complex, discrete optimization problem (on a space with cardinality $ | \{T, F\}^n | =  2^n $).  Researchers have come up with efficient ways of minimizing the $ L_1 $ norm and have shown that $ L_1 $ is a good approximation for minimizing $ L_0 $.
+
+Sparsity is interesting for a number of reasons.  One is that it is a good optimization.  If we adopt a sparse representation for the learned model, then evaluating the model consists of iterating its non-zero elements.  Another benefit is that for some domains, sparsity is a reasonable assumption, as there is some underlying cause for the input, with added noise.
+
+This is the reason that these considerations are relevant - it gives a philosophical motivation for systematically ignoring some of the features in our model.  We can imagine running an optimization that determines the probability used to represent a particular $ P(F_i \vert C) $.  This would deviate from the probability indicated by the actual frequency, as a cost function related to the overall distance from $ 0.5 $ would be applied.  In other words, you need to ``buy'' discriminatory power, under the assumption that the weak features are noisy disinformation.
+
+As a first approximation, to test whether this idea might have some value to it for this application, we removed the features that weren't highly dichotomized.  This was done by removing the features that satisfy $ \vert \frac{P(F_i \vert C_1)}{P(F_i \vert C_1) + P(F_i \vert C_2)} - 0.5 \vert \leq \delta $, where $ \delta $ is the distance from $ 0.5 $ that should be cropped.
+
+Unfortunately, strangely, no value of $ \delta $ yielded an increase in the performance of the classifier on the test data.  It's possible that pursuing a more theoretically grounded approach to this, that also takes into account the quantity of samples involving the feature, would yield better results.
+
+% \subsubsection{ Graphical Models }
+
+% The study of graphical models involves the crossover between graph theory and probability theory, and gives a uniform perspective of many techniques for creating models and categorizers.  These models express dependencies between states of various nature relating to a system - in the case of ``Partially Observable Markov Decision Processes'', this includes observations and states.  The dependencies among the states indicate the temporal interdependencies of the states, while also being informed by the observations.  The current state of the belief distribution is used as an input, along with these observations, to evaluate the joint probabilities at each state, of now inhabiting that state.  Thankfully, our model does not need to worry about anything quite like these temporal dependencies (but if we worried about context, something like this would be needed!).
+
+% Anyway, since our system is merely Naive Bayes, it can be expressed quite trivially as a graphical model:
+
+% \input { figs/fig1.tex }
 
 \end{document}
