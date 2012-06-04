@@ -11,6 +11,8 @@ import itertools
 import random
 from optparse import OptionParser
 import cPickle as pickle
+from collections import defaultdict
+from pprint import pprint
 
 try:
     import psyco
@@ -190,14 +192,29 @@ class NaiveBayes:
         Determine the overall accuracy of this classifier given a testing
         data set.
         """
+        stats = defaultdict(int)
         num_correct, num_examples = 0, 0
         for filename, category in examples:
             hypothesis = self.classify_doc(filename)[0]
+            if category == 'positive':
+              stats['total_real_pos'] += 1
+            elif category == 'negative':
+              stats['total_real_neg'] += 1
+            stats['total_examples'] += 1
             if category == hypothesis:
+                if category == 'positive':
+                  stats['pos_correctly_classified'] += 1
+                else:
+                  stats['neg_correctly_classified'] += 1
                 num_correct += 1
+            else:
+                if category == 'positive' and hypothesis == 'negative':
+                  stats['pos_classified_as_neg'] += 1
+                elif category == 'negative' and hypothesis == 'positive':
+                  stats['neg_classified_as_pos'] += 1
             num_examples += 1
 
-        return float(num_correct) / float(num_examples)
+        return ((float(num_correct) / float(num_examples)), stats)
 
 if __name__ == '__main__':
     parser = OptionParser(
@@ -233,11 +250,13 @@ if __name__ == '__main__':
         pickle.dump(nb.to_dict(), f)
     print 'Finished learning'
     # don't output individual accuracies for the training data
-    accuracy = nb.test_on(docs(args[0]))
+    accuracy, stats = nb.test_on(docs(args[0]))
     print 'Accuracy on the training set was %.2f%%' % (accuracy * 100.0)
+    pprint(dict(stats))
     if len(args) > 1:
-        accuracy = nb.test_on(docs(args[1]))
+        accuracy, stats = nb.test_on(docs(args[1]))
         print 'Accuracy on the test set was %.2f%%' % (accuracy * 100.0)
+        pprint(dict(stats))
     if opts.interactive:
         print 'Entering interactive mode'
         while True:
