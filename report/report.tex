@@ -73,14 +73,18 @@ log p(C_1) \prod_{i=1}^n p(F_i \vert C_1) & \stackrel{\text{?}}{\leq} log p(C_2)
 log p(C_1) + \sum_{i=1}^n log p(F_i \vert C_1) & \stackrel{\text{?}}{\leq} log p(C_2) + \sum_{i=1}^n log p(F_i \vert C_2) \\
 \end{align*}
 
-\subsection { Sparsity assumptions }
+\subsection { Connections to Advanced Topics }
 
-A more recent development in sensor post-processing / learning models is an idea that's referred to as ``compressive sensing'', which attempts to recover more accurate models by assuming that the process being studied is ``sparse''.  Many continuous optimization problems can be posed in terms of something similar to the $ L_2 $ norm.  This norm creates surfaces that resemble a parabola - the slope near zero is low.  The key observation of ``compressive sensing'' is that optimizing things that much more resemble the structure of the linear norm, $ L_1 $, creates more extreme slopes at the origin.  This encourages values to be set to zero, hence the word ``sparsity''.  Correspondingly, this encourages the non-zero elements to be more significant than they would be otherwise.
+\subsubsection { Sparsity assumptions }
+
+A more recent development in sensor post-processing / learning models is an idea that's referred to as \emph{compressive sensing}, which attempts to recover more accurate models by assuming that the process being studied is \emph{sparse}.  Many continuous optimization problems can be posed in terms of something similar to the $ L_2 $ norm (e.g. least squares)  This norm creates surfaces that resemble a cone.  As such, if you fix any of the parameters, you get conic,   The key observation of \emph{compressive sensing}} is that optimizing things that much more resemble the structure of the linear norm, $ L_1 $, creates more extreme slopes along the axii, encouraging settling there.  This encourages values to be set to zero, hence the word \emph{sparsity}.  Technically, sparsity would involve minimizing the $ L_0 $ norm, which corresponds to the number of non-zero elements of the vector.  However, this becomes a very difficult, combinatorially complex, discrete optimization problem (on a space with cardinality $ | \{T, F\}^n | =  2^n $).  Researchers have shown that $ L_1 $ is a good approximation for minimizing $ L_0 $, 
+
+Sparsity is interesting for a number of reasons.  One is that it is a good optimization.  If we adopt a sparse representation for the learned model, then evaluating the model consists of iterating its non-zero elements.  Another benefit is that for some domains, sparsity is a reasonable assumption, as there is some underlying cause for the input, with added noise.
 
 The reason these concepts are relevant to our study is that it gives a framework within which to address the issue that many of the $ p(F_i \vert C) $ probabilities are close to $ 0.5 $ or are supported by few samples.
 
 
-\subsection{ Graphical Models }
+\subsubsection{ Graphical Models }
 
 The study of graphical models involves the crossover between graph theory and probability theory, and gives a uniform perspective of many techniques for creating models and categorizers.  These models express dependencies between states of various nature relating to a system - in the case of ``Partially Observable Markov Decision Processes'', this includes observations and states.  The dependencies among the states indicate the temporal interdependencies of the states, while also being informed by the observations.  The current state of the belief distribution is used as an input, along with these observations, to evaluate the joint probabilities at each state, of now inhabiting that state.  Thankfully, our model does not need to worry about anything quite like these temporal dependencies (but if we worried about context, something like this would be needed!).
 
