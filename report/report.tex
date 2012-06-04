@@ -174,6 +174,16 @@ Our solution to these considerations was to break the text on the whitespace / p
 
 \subsection { Bayesian Categorizer }
 
+Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: partitioning the data into a training set and a test set, and then training our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
+
+Preparing and partitioning the data is implemented as a collection of Python scripts that take the labeled data from the web and console categorizers and re-formats it for the Naive Bayes classifier. Specifically, this involves organizing all the tweets into directories of individual files on disk, where each file contains exactly one tweet, and each directory corresponds to one label (positive or negative). The data is then partitioned into a training and test set by taking a random sample of 80\% of the data, using that for the training set, and moving the remaining 20\% into the test set.
+
+Once the data is processed and ready to learn, the Naive Bayes classifier trains itself by taking each tweet from the training data, splitting it into words using our lexer discussed in the previous section, and then recording the frequency of each word appearing in the tweet. In addition to the frequency, we also record the label of the tweet that the word appears in, so we can calculate prior probabilities for each word for each label.
+
+As the classifier is building its predictive model, these frequencies are cumulatively aggregated. The end result is a model that consists of a bag of all words (and their frequencies) appearing at least once in a tweet, along with the labels they appeared in. Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Then, when classifying an unlabeled test example, we use our simplified version of Bayes' theorem, as discussed earlier, to calculate $P(C | F_i)$ for all possible labels. We then choose the label that has the highest probability.
+
+One particular implementation detail to note is that we only deal with log likelihoods in our code. This is because computing $P(F_1, ..., F_n | C)$ involves multiplying lots of probabilities. Since this is essentially multiplying lots of very small numbers, we start to lose accuracy due to numerical underflow and the limitations of binary floating point representation. Thus, we take the log of each probability and maximize their sum instead.
+
 \subsection { Max-Uncertainty Queue }
 
 One issue with this project is that, similarly to many studies, there is cost associated with taking additional samples.
