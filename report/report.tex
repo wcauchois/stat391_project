@@ -292,6 +292,12 @@ In the end, we collected 627 data points, including 354 positive categorizations
 \includegraphics[width=300px]{figs/pos_neg_breakdown.png}
 \end{center}
 
+\begin{center}
+\includegraphics[width=300px]{figs/fig3.png}
+\end{center}
+
+The probability of a document being positive, given just the presence of one token, is the proportion of positive documents that contain that token.  The preceding graph is a histogram, showing the frequencies of these different probabilities.  The large extreme bars indicate that some words were only found in negative or positive posts.  Many of these are likely unique / rare tokens such as proper names.  However, this may also be an indication that more data would have been helpful.
+
 Our classification accuracy is summarized by the following table:
 
 \begin{tabular}{|l|l|}
