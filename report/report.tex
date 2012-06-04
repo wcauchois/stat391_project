@@ -230,7 +230,7 @@ for filename, label in examples:
     category.num_docs += 1
 \end{verbatim}
 
-Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Calculating the probabilities 
+Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Our implementation of this ended up being fairly compact and straightforward:
 
 \begin{verbatim}
 def calculate_probabilities(self, freq_transform=lambda x: x):
