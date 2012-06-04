@@ -156,7 +156,26 @@ Some were also far more ridiculously negative than the examples here.  For more 
 
 \subsection { Manual Web-Based Categorization }
 
+\subsubsection{Introduction}
+
+The web-based categorizer is a web application that gets some of the most recent tweets posted to Twitter, picks the first English tweet it can find, and displays it to the user. The user then clicks either the ``positive'' button or the ``negative'' button, or they can refresh the page if the tweet doesn’t easily fall into either category. If the user clicks one of the buttons, the name of the tweet’s author, as well as the tweet itself, are stored into a \texttt{.txt} file in a comma-delimited string (meaning it can easily be converted to CSV with little cleanup). The motivation for creating this web app was so that we could easily gather tweet data on our own instead of relying solely on Amazon’s Mechanical Turk. While Mechanical Turk allows us to get a large amount of data without collecting all of it ourselves, it costs money to gather data, and due to different backgrounds, English-speaking abilities, and outlooks on life, the data ends up having more variation than our own categorization.
+
+The categorizer can be accessed at: \texttt{http://abstract.cs.washington.edu/~coralp/stat391/index.php}. A screenshot of the web page is below:
+
 \includegraphics[width=470px]{figs/web_cat.png}
+
+\subsubsection{Implementation}
+
+When the page is loaded, a call is made to Twitter’s ``public timeline'' API \\
+(\texttt{https://api.twitter.com/1/statuses/public\_timeline.json}), which returns approximately 20 of the most recent tweets posted. Each tweet is returned as a JSON object, with the text of the tweet itself, various statistics about it (such as whether or not it has been favorited), and a user object representing the author of the tweet.
+
+Although some of the other Twitter APIs allow the caller to specify that they only want English tweets, this functionality did not work with \texttt{public\_timeline}. In order to display only English tweets to our users, we look at the ``lang'' field attached to the user object. After the code gets the list of tweets, it iterates through them until it finds one with a user who specified ``en'' as their language. Unfortunately, because the language specification is not on the tweet itself, because users may have specified their language incorrectly when signing up, and because users who primarily write in English may occassionally tweet in other languages, the tweets we displayed were not always actually in English. In cases where this happened, we instructed the viewer to simply refresh the page.
+
+Once the user clicks on either ``positive'' or ``negative'' a POST call containing the user’s name, the text of the tweet, and a boolean specifying whether or not the tweet was positive is sent to the \texttt{write.php} script. This script writes to either \texttt{positive.txt} or \texttt{negative.txt} based on the boolean. In the specified file, it records the user’s name and the text of the tweet separated by a comma. Later, we manually took these files and merged them into one CSV file for training and testing.
+
+\subsubsection{Possible Improvements}
+
+The most obvious improvement in data collection would be to ensure that the tweets shown to the users are actually in English. Since the data collection through the web application was mostly completed by us, we didn’t feel it was necessary to implement better language checking. However, if we wanted to enlist a wider array of people to help with data collection, this would be a welcome improvement. Another improvement would be to strip out the commas (because commas are the delimiter in CSV files) and newlines (because each tweet should only be on one line) in tweets before saving them to the files. There were relatively few tweets that had one or both of these, so we corrected the data manually.
 
 \subsection { Lexer }
 
