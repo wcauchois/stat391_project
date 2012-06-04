@@ -240,6 +240,8 @@ The most visible improvements would be to add more automatic suggestions to the 
 
 \section { Results }
 
+\subsection{Overview}
+
 In the end, we collected 627 data points, including 354 positive categorizations and 272 negative categorizations. This breakdown is illustrated in the following graph:
 
 \begin{center}
@@ -269,14 +271,13 @@ Training & 280 (98.9\%) & 3 (1.1\%) & 211 (97.2\%) & 6 (2.8\%) \\ \hline
 Test & 53 (74.6\%) & 18 (25.4\%) & 35 (63.6\%) & 20 (36.4\%) \\ \hline
 \end{tabular}
 
-%TODO: tables, charts, and graphs.
+\subsection{Discussion}
 
-\subsection { Speculation }
+Our results weren't as good as we might have liked. Clearly, an accuracy of 69.84\% leaves something to be desired, and in any circumstance where tweets \emph{must} be classified with great accuracy, our classifier would be unsuitable. However, given the naïveté of our model we might have expected even worse. And given our experiences playing around with the web frontend, the classifier seems to perform reasonably well on any example we manually throw at it. Therefore, we might say that our classifier is ``good enough'' to perform broad categorization on tweets. In any case, our categories are highly subjective. So its hard to gage in the first place whether our labels were even correct.
 
-%TODO: figure out where to put this / rename.
+It looks like, at least in the test set, more negative examples were misclassified than positive examples (on a percentage basis). This could be explained by the fact that, in general, we tended to manually classify examples as positive when we were unsure of their category. This would result in a bias within the classifier towards classifying examples as positive.
 
 Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.
-
 
 \section { Future Work}
 
