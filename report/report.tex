@@ -206,7 +206,7 @@ def parse_tokens(input):
 
 \subsubsection { Introduction }
 
-Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: \textbf{partitioning} the data into a training set and a test set, and then \textbf{training} our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
+Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: \textbf{preparing} the data by partitioning into a training set and a test set, and then \textbf{training} our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
 
 \subsubsection { Data Preparation }
 
@@ -230,7 +230,7 @@ for filename, label in examples:
     category.num_docs += 1
 \end{verbatim}
 
-Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Calculating the probabilities 
+Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Our implementation of this ended up being fairly compact and straightforward:
 
 \begin{verbatim}
 def calculate_probabilities(self, freq_transform=lambda x: x):
@@ -326,8 +326,6 @@ Test & 53 (74.6\%) & 18 (25.4\%) & 35 (63.6\%) & 20 (36.4\%) \\ \hline
 Our results weren't as good as we might have liked. Clearly, an accuracy of 69.84\% leaves something to be desired, and in any circumstance where tweets \emph{must} be classified with great accuracy, our classifier would be unsuitable. However, given the naïveté of our model we might have expected even worse. And given our experiences playing around with the web frontend, the classifier seems to perform reasonably well on any example we manually throw at it. Therefore, we might say that our classifier is ``good enough'' to perform broad categorization on tweets. In any case, our categories are highly subjective. So its hard to gage in the first place whether our labels were even correct.
 
 It looks like, at least in the test set, more negative examples were misclassified than positive examples (on a percentage basis). This could be explained by the fact that, in general, we tended to manually classify examples as positive when we were unsure of their category. This would result in a bias within the classifier towards classifying examples as positive.
-
-Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.
 
 \section { Future Work }
 
