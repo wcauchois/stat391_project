@@ -200,15 +200,23 @@ Our solution to these considerations was to break the text on the whitespace / p
 
 \subsection { Bayesian Categorizer }
 
-Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: partitioning the data into a training set and a test set, and then training our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
+\subsubsection { Introduction }
+
+Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: \textbf{partitioning} the data into a training set and a test set, and then \textbf{training} our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
+
+\subsubsection { Data Preparation }
 
 Preparing and partitioning the data is implemented as a collection of Python scripts that take the labeled data from the web and console categorizers and re-formats it for the Naive Bayes classifier. Specifically, this involves organizing all the tweets into directories of individual files on disk, where each file contains exactly one tweet, and each directory corresponds to one label (positive or negative). The data is then partitioned into a training and test set by taking a random sample of 80\% of the data, using that for the training set, and moving the remaining 20\% into the test set.
+
+\subsubsection { Training }
 
 Once the data is processed and ready to learn, the Naive Bayes classifier trains itself by taking each tweet from the training data, splitting it into words using our lexer discussed in the previous section, and then recording the frequency of each word appearing in the tweet. In addition to the frequency, we also record the label of the tweet that the word appears in, so we can calculate prior probabilities for each word for each label.
 
 As the classifier is building its predictive model, these frequencies are cumulatively aggregated. The end result is a model that consists of a bag of all words (and their frequencies) appearing at least once in a tweet, along with the labels they appeared in. Once we have these frequencies, for each label, we calculate the prior probabilities of each word being in a document that has that label by calculating how many times a word appeared in that label, divided by how many times that word appeared in all of the tweets. This gives us $P(F_i | C)$ for each word $F_i$ and label $C$. Then, when classifying an unlabeled test example, we use our simplified version of Bayes' theorem, as discussed earlier, to calculate $P(C | F_i)$ for all possible labels. We then choose the label that has the highest probability.
 
-One particular implementation detail to note is that we only deal with log likelihoods in our code. This is because computing $P(F_1, ..., F_n | C)$ involves multiplying lots of probabilities. Since this is essentially multiplying lots of very small numbers, we rapidly accuracy due to numerical underflow and the limitations of binary floating point representation. Thus, we take the log of each probability and maximize their sum instead.
+\subsubsection { Implementation Notes }
+
+One particular implementation detail to note is that we only deal with log likelihoods in our code. This is because computing $P(F_1, ..., F_n | C)$ involves multiplying lots of probabilities. Since this is essentially multiplying lots of very small numbers, we rapidly lose accuracy due to numerical underflow and the limitations of binary floating point representation. Thus, we take the log of each probability and maximize their sum instead.
 
 \subsection { Max-Uncertainty Queue }
 
@@ -239,6 +247,8 @@ The most visible improvements would be to add more automatic suggestions to the 
 
 \section { Results }
 
+\subsection{Overview}
+
 In the end, we collected 627 data points, including 354 positive categorizations and 272 negative categorizations. This breakdown is illustrated in the following graph:
 
 \begin{center}
@@ -268,14 +278,13 @@ Training & 280 (98.9\%) & 3 (1.1\%) & 211 (97.2\%) & 6 (2.8\%) \\ \hline
 Test & 53 (74.6\%) & 18 (25.4\%) & 35 (63.6\%) & 20 (36.4\%) \\ \hline
 \end{tabular}
 
-%TODO: tables, charts, and graphs.
+\subsection{Discussion}
 
-\subsection { Speculation }
+Our results weren't as good as we might have liked. Clearly, an accuracy of 69.84\% leaves something to be desired, and in any circumstance where tweets \emph{must} be classified with great accuracy, our classifier would be unsuitable. However, given the naïveté of our model we might have expected even worse. And given our experiences playing around with the web frontend, the classifier seems to perform reasonably well on any example we manually throw at it. Therefore, we might say that our classifier is ``good enough'' to perform broad categorization on tweets. In any case, our categories are highly subjective. So its hard to gage in the first place whether our labels were even correct.
 
-%TODO: figure out where to put this / rename.
+It looks like, at least in the test set, more negative examples were misclassified than positive examples (on a percentage basis). This could be explained by the fact that, in general, we tended to manually classify examples as positive when we were unsure of their category. This would result in a bias within the classifier towards classifying examples as positive.
 
 Tweets use ``hash-tag'' prefixes of words or compounded words in order to indicate some key-word relevant to the contents of your tweet.  In other words, this is a way to even further reduce the amount of content potentially included in your posts, while connecting your post to others'.
-
 
 \section { Future Work}
 
