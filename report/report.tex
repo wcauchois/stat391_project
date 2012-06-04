@@ -206,11 +206,11 @@ def parse_tokens(input):
 
 \subsubsection { Introduction }
 
-Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: \textbf{preparing} the data by partitioning into a training set and a test set, and then \textbf{training} our Naive Bayes classifier on the training set in order to form a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples using the test set.
+Our Bayesian categorizer is implemented as a supervised machine learning algorithm, which is comprised of two steps: \textbf{preparing} the data by partitioning the data set into a training set and a test set, and then \textbf{training} our Naive Bayes classifier on the training set in order to build a predictive model based on the observed probabilities of individual words occurring in a label. We can then test our predictive model on unlabeled test examples, drawn from the test set.
 
 \subsubsection { Data Preparation }
 
-Preparing and partitioning the data is implemented as a collection of Python scripts that take the labeled data from the web and console categorizers and re-formats it for the Naive Bayes classifier. Specifically, this involves organizing all the tweets into directories of individual files on disk, where each file contains exactly one tweet, and each directory corresponds to one label (positive or negative). The data is then partitioned into a training and test set by taking a random sample of 80\% of the data, using that for the training set, and moving the remaining 20\% into the test set.
+Preparing and partitioning the data is implemented as a collection of Python scripts that takes labeled data from the web and console categorizers and re-formats it for the Naive Bayes classifier. Specifically, this involves organizing all the tweets into directories of individual files on disk, where each file contains exactly one tweet, and each directory corresponds to one label (positive or negative). The data is then partitioned into a training and test set by taking a random sample of 80\% of the data, using that for the training set, and moving the remaining 20\% into the test set.
 
 \subsubsection { Training }
 
