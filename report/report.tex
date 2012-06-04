@@ -90,7 +90,7 @@ Anyway, since our system is merely Naive Bayes, it can be expressed quite trivia
 
 \section{ Implementation }
 
-The implementation of our project can be broadly divided into several different components. Before performing any classification, we first had to collect data and then label that data. We implemented a \textbf{scraper} in Python to aggregate raw tweets from Twitter's feed of recent tweets. Next, we used several different methods to label the tweets as positive or negative in order to create a training set for our classifier. These methods included \textbf{Mechanical Turk}, a web-based service that lets you pay others to perform classification; \textbf{manual console categorization}, wherein we manually classified tweets using a console program; and \textbf{manual web-based categorization}, wherein we manually classified tweets using a web application. Now that we had labeled data, the next challenge was \textbf{lexing} that data to create a bag of words representation for each tweet. Finally, we built our \textbf{Bayesian categorizer}.
+The implementation of our project can be broadly divided into several different components. Before performing any classification, we first had to collect data and then label that data. We implemented a \textbf{scraper} in Python to aggregate raw tweets from Twitter's feed of recent tweets. Next, we used several different methods to label the tweets as positive or negative in order to create a training set for our classifier. These methods included \textbf{Mechanical Turk}, a web-based service that lets you pay others to perform classification; \textbf{manual console categorization}, wherein we manually classified tweets using a console program; and \textbf{manual web-based categorization}, wherein we manually classified tweets using a web application. Now that we had labeled data, the next challenge was \textbf{lexing} that data to create a bag of words representation for each tweet. Finally, we built our \textbf{Bayesian categorizer}. We also built a \textbf{web frontend}.
 
 \subsection { Scraper }
 
@@ -214,6 +214,21 @@ In the case Mechanical turk, the cost was $ \$1.16 / 40 \text{ tweets} ~ \$0.029
 In the case of using the manual categorizer, we found that we could categorize tweets at about a rate of about $ 15 \text{ tweets} / \text{min} $.  This means that with a solid hour of work, we could categorize 900 tweets.  In order to compute what this means for our price per tweet, we first need an estimate of the value of our time.  If our time is worth the pay of a typical entry-level fulltime software engineer, $ \$40 / \text{hr} $, then each tweet costs $ \$40 \text{min}^{-1} / ( 900 \text{ tweets} * \text{min}^-1 \approx \$0.045 * \text{tweets}^-1 $.  However, we are all in school!  Perhaps it would be more appropriate to use the amount made as a TA: $ \$10.50 * \text{min}^{-1} / ( 900 * \text{tweets} * \text{min}^{-1} ) \approx \$0.015 $.  This is around half as much as the cost of Mechanical Turk, which incentivized us to do more manual than ``mechanized'' sampling.
 
 Either way, it would be cool to make the most of the resource expenditure involved in categorization.  An interesting way of approaching this problem would be to write it down as an optimization problem that relates the cost of data collection with the potential for information gain:
+
+\subsection{Web Frontend}
+
+\subsubsection{Introduction}
+We also built a web frontend to demo our classifier. The web frontend was intended to show how our classifier behaves on arbitrary  user input. The user simply types text into the input box, and then clicks the ``Classify!'' button. A message will pop up with the result of the classification (either ``positive'' or ``negative'').
+
+The web frontend can be accessed at: \texttt{http://abstract.cs.washington.edu/~coralp/stat391/classify.php}. A screenshot is shown below:
+
+\includegraphics[width=470px]{figs/web_frontend.png}
+
+\subsubsection{Implementation}
+When the user clicks ``Classify!'', a script called \texttt{classify.js} gets the text that user entered and sends it to \texttt{get\_classification.php} as a GET request with the parameter ``text''. Before using the text value, the PHP script strips out apostrophes, because they cause syntax errors. After sanitizing the data, the script then calls the \texttt{naive\_bayes.py} Python script, giving it a previously saved model that is based on our training data, and passes the text of the tweet into the script. The Naive Bayes script finds the category that would best fit the given tweet, and returns the text string ``positive'' or ``negative''. The PHP script then takes this value and passes it back to the front-end code, which displays it in a text box for the user.
+
+\subsubsection{Possible Improvements}
+The most visible improvements would be to add more automatic suggestions to the demo. For instance, an option to pull the latest tweet and classify it would allow users to see the demo without thinking of something to write. The most recent tweet would also have the advantage of being data that is actually on Twitter; although users can theoretically write anything on Twitter, using data from the source instead of making it up on the spot would fit our previously collected data more clearly. Another possible improvement would be the ability to classify multiple tweets at a time. For instance, the ability to search for a hashtag and gauge the overal mood of tweets that use that hashtag would be an interesting exercise.
 
 \section { Results }
 
